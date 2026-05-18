@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Interaktif: Adat Resam Kaum di Sarawak (35 Soalan)</title>
+    <style>
+        :root {
+            --primary-color: #1b4d3e;
+            --secondary-color: #cda250;
+            --bg-color: #f4f7f5;
+            --text-color: #2d3748;
+            --keyword-color: #d9381e;
+            --keyword-bg: #fff5f5;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 4px solid var(--secondary-color);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.6rem;
+            letter-spacing: 0.5px;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: #e2e8f0;
+        }
+
+        /* Split Layout Main Container */
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            padding: 15px;
+            gap: 15px;
+        }
+
+        /* Left Side: Notes Column (Wider - 62%) */
+        .notes-column {
+            flex: 1.6;
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            overflow-y: auto;
+            border-top: 4px solid var(--primary-color);
+        }
+
+        /* Right Side: Quiz Column (Narrower - 38%) */
+        .quiz-column {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            overflow-y: auto;
+            border-top: 4px solid var(--secondary-color);
+        }
+
+        h2.section-title {
+            color: var(--primary-color);
+            border-bottom: 2px solid #edf2f7;
+            padding-bottom: 8px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+        }
+
+        /* Infographic Card Styling */
+        .info-card {
+            background: #fafbfb;
+            border-left: 5px solid var(--primary-color);
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        .info-card h3 {
+            margin-top: 0;
+            color: #2c5282;
+            font-size: 1.1rem;
+        }
+
+        .keyword {
+            font-weight: bold;
+            color: var(--keyword-color);
+            background-color: var(--keyword-bg);
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        ul {
+            padding-left: 20px;
+            margin: 8px 0;
+        }
+
+        li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        /* Quiz UI Elements */
+        .question-block {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .question-text {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1a202c;
+        }
+
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .option-item {
+            margin-bottom: 8px;
+        }
+
+        .option-item label {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: #f7fafc;
+            border: 1px solid #edf2f7;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-item label:hover {
+            background: #edf2f7;
+        }
+
+        .option-item input {
+            margin-right: 10px;
+        }
+
+        .feedback-box {
+            margin-top: 10px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .feedback-box.correct {
+            display: block;
+            background-color: #c6f6d5;
+            color: #22543d;
+            border-left: 4px solid #38a169;
+        }
+
+        .feedback-box.wrong {
+            display: block;
+            background-color: #fed7d7;
+            color: #742a2a;
+            border-left: 4px solid #e53e3e;
+        }
+
+        .submit-container {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .check-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .check-btn:hover {
+            background-color: #123329;
+        }
+
+        .result-container {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #ebf8ff;
+            color: #2b6cb0;
+            border: 2px dashed #bee3f8;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .result-container.show {
+            display: block;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #edf2f7;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0;
+        }
+
+        @media (max-width: 900px) {
+            .main-container {
+                flex-direction: column;
+                overflow: auto;
+                height: auto;
+            }
+            .notes-column, .quiz-column {
+                height: auto;
+                overflow-y: visible;
+                flex: none;
+                width: 100%;
+                box-sizing: border-box;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div>
+            <h1>Nota Padat & Kuiz Kebudayaan Adat Resam Sarawak</h1>
+            <div class="subtitle">Persediaan Intensif Pertandingan Kuiz Kebudayaan Peringkat Kebangsaan</div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        
+        <div class="notes-column">
+            <h2 class="section-title">📌 Nota Padat Kebudayaan Sarawak</h2>
+
+            <div class="info-card">
+                <h3>1. Adat Bebayuh & Peranan Topeng Sagu (Kaum Melanau)</h3>
+                <ul>
+                    <li><strong>Lokaliti & Kepercayaan:</strong> Suku kaum Melanau menetap di pesisir pantai meliputi <span class="keyword">Matu Daro, Rejang, dan Mukah</span>. Golongan animisme memuja semangat <span class="keyword">Ipok</span> (kuasa alam): <span class="keyword">Ipok Laut</span>, <span class="keyword">Ipok Balau</span> (hutan), <span class="keyword">Ipok Sarauang</span> (langit), dan <span class="keyword">Ipok Iyang</span> (tanah).</li>
+                    <li><strong>Definisi:</strong> <span class="keyword">Adat Bebayuh</span> ialah ritual perubatan animisme tradisional bagi memulihkan penyakit akibat gangguan makhluk halus atau ketidakseimbangan tenaga alam.</li>
+                    <li><strong>Proses Ritual 7 Hari:</strong>
+                        <ul>
+                            <li><strong>Hari 1:</strong> Bomoh melakukan upacara bersendirian pada malam hari untuk <span class="keyword">berinteraksi dengan semangat ghaib</span> dan tawar-menawar demi kesembuhan pesakit.</li>
+                            <li><strong>Hari 2:</strong> Rawatan bermula melibatkan bomoh dan pesakit, penyerahan senarai barang keperluan ghaib, serta persembahan <span class="keyword">Tarian Seladai</span>.</li>
+                            <li><strong>Hari 3 (Kemuncak Pengesanan):</strong> Bahan ritual diserahkan (mayang pinang, pucuk mentel, <span class="keyword">isem pisai</span> iaitu daun palas kering dianyam, dupa, lilin, serpihan kaca atas kain putih). Alat muzik dimainkan (<span class="keyword">gendang genayang</span>, tadak, kulintangan, tetawak). Bomoh memukul gendang untuk mengesan penyakit, <span class="keyword">menelan lilin menyala</span>, mengulit mayang pinang pada pesakit, pesakit memijak kaca, dan Tarian Seladai ditarikan oleh <span class="keyword">7 lelaki & 7 perempuan belum berkahwin</span>.</li>
+                            <li><strong>Hari 4 - 6:</strong> Ritual pengulangan. Pesakit wajib mematuhi <strong>pantang makan</strong>: dilarang makan <span class="keyword">ikan pari, ikan yu, kacang, dan telur</span>.</li>
+                            <li><strong>Hari 7 (Pemutus Ubat):</strong> Malam penamat bagi menjamin kemujaraban. Pengeras khas disediakan berupa <span class="keyword">butiran emas</span>, sebatang <span class="keyword">lembing kecil daripada tulang</span> (makanan semangat), dan <span class="keyword">seekor ayam hidup</span>.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="info-card">
+                <h3>2. Adat Perkahwinan Masyarakat Melayu Sarawak</h3>
+                <ul>
+                    <li><strong>Fasa Pra-Perkahwinan:</strong>
+                        <ul>
+                            <li><span class="keyword">Merasi:</span> Langkah awal pencarian dan penentuan jodoh oleh keluarga lelaki menggunakan khidmat pencari jodoh dihormati (<span class="keyword">ketua kampung, imam, guru agama, guru sekolah</span>) bagi menilai keserasian.</li>
+                            <li><span class="keyword">Ngangin:</span> Pertanyaan rasmi yang digelar <span class="keyword">kerisik kerimun</span> untuk mengesahkan status gadis sama ada belum berpunya.</li>
+                            <li><span class="keyword">Bertekul (Merisik):</span> Adat merisik dan meminang sebagai pengesahan komitmen. Barang tanda hantaran (<span class="keyword">tekul</span>) diserahkan berupa wang, cincin emas, berlian, atau <span class="keyword">keris warisan</span>, and cincin disarungkan di jari manis gadis.</li>
+                            <li><span class="keyword">Langkah Batang:</span> Jika pengantin perempuan melangkah kakaknya yang belum berkahwin, pihak lelaki wajib menghadiahkan cincin emas atau sepersalinan pakaian kepada si kakak.</li>
+                        </ul>
+                    </li>
+                    <li><strong>4 Jenis Perkahwinan Tradisional:</strong>
+                        <ul>
+                            <li><span class="keyword">Nikah Benar:</span> Dilaksanakan berlandaskan hukum syarak serta memenuhi semua nilai dan norma adat Melayu sepenuhnya.</li>
+                            <li><span class="keyword">Nikah Salah:</span> Pasangan didapati berkhalwat/sumbang, dipaksa berkahwin secara ringkas dan sederhana untuk menutup aib.</li>
+                            <li><span class="keyword">Nikah Nyerah Diri:</span> Terjadi apabila pihak lelaki menyerah diri kepada keluarga perempuan (biasanya golongan kaya) akibat <span class="keyword">kekurangan kewangan</span> untuk menampung majlis.</li>
+                            <li><span class="keyword">Ngekot:</span> Perempuan mengikut lelaki pulang ke rumahnya dan bermalam beberapa hari agar dinikahkan kerana <span class="keyword">keluarga perempuan tidak merestui</span> hubungan tersebut.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Hari Majlis & Persandingan:</strong>
+                        <ul>
+                            <li><span class="keyword">Mandi Perantan:</span> Upacara mandi pembersihan oleh Mak Andam pada malam berlulut/berinai yang diakhiri dengan mengambil wuduk.</li>
+                            <li><strong>Pantang Larang:</strong> Pengantin perempuan <span class="keyword">dilarang melihat cermin</span> sepanjang diandam agar tidak hilang seri wajah di pelamin.</li>
+                            <li><strong>Busana Tradisi:</strong> Pengantin perempuan memakai kebaya songket, gaun sutera bertekat emas, atau busana tradisi eksklusif Sarawak bernama <span class="keyword">Gajah Oleng</span>.</li>
+                            <li><span class="keyword">Tikar Ngambik Pengantin:</span> Tikar mengkuang dibalut dengan <span class="keyword">tudung keringkam / selayah</span> bersulam benang emas. Dihantar oleh pihak perempuan ke rumah lelaki sebagai isyarat sedia menerima rombongan pengantin lelaki.</li>
+                            <li><span class="keyword">Pencak Silat Kapak:</span> Persembahan seni silat yang ditarikan setibanya pengantin lelaki sebagai acara "pembuka pintu".</li>
+                            <li><span class="keyword">Upacara Berjembak:</span> Pengantin lelaki membatalkan air sembahyang dengan menyentuh dahi isteri menggunakan ibu jari bersama <span class="keyword">jejambak</span> (lipatan tuala kecil berbentuk bunga yang wangi).</li>
+                            <li><span class="keyword">Makan Nasi Temuan:</span> Acara makan bersama ahli keluarga untuk melenyapkan rasa segan dan kekok pasangan.</li>
+                            <li><span class="keyword">Mengundang Menantu:</span> Ziarah ke rumah mentua selepas 7 hari perkahwinan. Ibu mentua menghadiahkan <span class="keyword">lapit kaki</span> (alas kaki) atau barangan kemas/berlian sebagai simbolik kegembiraan menyambut menantu.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="info-card">
+                <h3>3. Adat Kematian & Ritual Kepercayaan Kaum Iban</h3>
+                <ul>
+                    <li><span class="keyword">Mati Enggau Rabat:</span> Tradisi meratap dan menangis oleh ahli keluarga selama <span class="keyword">10 hingga 30 minit</span> sebaik sahaja berlakunya kematian.</li>
+                    <li><strong>Galang Alu di Tempuan:</strong> Dua batang alu (penumbuk lesung padi) dipasang melintang sebagai galang di ruang <span class="keyword">tempuan</span> (laluan utama) bagi <span class="keyword">menghalang roh si mati memasuki semula rumah panjang</span> dan mencegah pertambahan kematian.</li>
+                    <li><strong>Pengurusan Mayat:</strong> Dibersihkan menggunakan air sabun daripada <span class="keyword">kulit buah langgir</span> (buah hutan liar ditumbuk), dahi ditandakan <span class="keyword">tiga tanda kunyit</span>, and rambut disapu minyak.</li>
+                    <li><span class="keyword">Sapat (Dinding Penghadang):</span> Kain <span class="keyword">pua kumbu</span> digantung menegak setinggi 5 kaki di ruang ruai membentuk sapat berukuran 9 kaki persegi sebagai zon menempatkan mayat.</li>
+                    <li><span class="keyword">Baiya:</span> Barang hantaran milik si mati dimasukkan dalam kotak kosong berdekatan kepala mayat. Api kecil dinyalakan di pendiang dekat kaki mayat dan tidak boleh padam sehingga urusan pengebumian selesai.</li>
+                    <li><strong>Pantang Larang:</strong> Mayat dilarang keras dilangkah oleh haiwan peliharaan seperti kucing atau anjing demi ketenteraman roh.</li>
+                    <li><span class="keyword">Tukang Sabak:</span> Penyanyi ritual yang melagukan ratapan mendayu-dayu dari pukul 6 petang (senja) hingga subuh, mengisahkan perjalanan roh menuju dunia <span class="keyword">sebayan</span> (akhirat). Beliau diberi upah berupa tajau/tempayan, pinggan, pua kumbu, ayam, and parang/besi.</li>
+                    <li><strong>Masa Berkabung:</strong> Berlangsung selama tiga bulan. Sebarang acara keraian lain dilarang; sekiranya diadakan juga, penganjur dikenakan denda <span class="keyword">sigi panding</span> (bernilai RM2.00) sebagai pemampul/pendinding.</li>
+                    <li><span class="keyword">Upacara Ngetas Ulit:</span> Upacara tamat berkabung di mana pahlawan Iban memotong rotan pengikat lengguai, memotong sedikit rambut keluarga, dan mendapat upah sebilah duku/pisau, satu chapak, dan satu kebok.</li>
+                    <li><span class="keyword">Upacara Berserara Bungai:</span> Dikendali oleh <span class="keyword">manang</span> (bomoh) selepas 1-2 bulan ngetas ulit untuk memisahkan secara total roh si mati dengan keluarga yang hidup agar tidak mendatangkan penyakit misteri.</li>
+                    <li><span class="keyword">Ritual Miring:</span> Amalan ritual menyembelih haiwan / menyediakan piring sajian bagi memohon keampunan (<span class="keyword">Piring ampun</span>) daripada kuasa luar biasa/petara untuk meredakan kemarahan alam serta menyelesaikan malapetaka seperti penyakit atau kemarau.</li>
+                </ul>
+            </div>
+
+            <div class="info-card">
+                <h3>4. Adat Resam Tambahan (Orang Ulu, Bidayuh & Rumah Panjang)</h3>
+                <ul>
+                    <li><strong>Adat Makan Tahun (Kaum Orang Ulu / Suku Kelabit):</strong> Diadakan antara bulan Mei hingga Julai sebagai tanda kesyukuran hasil tuaian tanaman padi. Ketua kampung mengumpul sumbangan wang yang dipanggil <span class="keyword">usin</span> untuk membeli perkakas memasak.</li>
+                    <li><strong>Adat Ngoncong (Kaum Bidayuh Salako):</strong> Ritual memohon kesejahteraan di Lundu dan Sematan. Menggunakan Talam (dulang) yang berisi sapu tangan, semangkuk beras, Topong (tapak sirih, pinang, kapur), dan sebiji telur. Ditambah hidangan seperti Poe’ (lemang) dan Tumpi’ (kuih tradisi). Penari wanita bergerak berputar mengelilingi talam sebagai simbolik doa kepada <span class="keyword">Jubata</span> (Tuhan).</li>
+                    <li><strong>Gotong-Royong Bidayuh (Pingirih):</strong> Amalan saling membantu tanpa batasan geografi. Contohnya pingirih ngutuom iaitu gotong-royong menuai padi untuk mengukuhkan rasa kekitaan.</li>
+                    <li><strong>Ritual Lubang Tiang Rumah Panjang (Iban):</strong> Sebelum mendirikan rumah panjang, bahan pelindung dimasukkan ke dalam lubang tiang utama: segenggam garam kasar, sebutir kecil emas, kulit buah langgir, dan ranting pohon renek dasar sungai. Bahagian bumbung (daripada daun pelepah nipah) wajib disiapkan paling awal selepas tiang berdiri, sebelum tuai burung memimpin perpindahan masuk.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="quiz-column">
+            <h2 class="section-title">📝 Kuiz Kebudayaan (35 Soalan)</h2>
+            <form id="quizForm">
+
+                <div class="question-block">
+                    <div class="question-text">1. Suku kaum manakah di Sarawak yang mengamalkan pemujaan semangat Ipok sebagai manifestasi kekuatan alam?</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q1" value="A"> A. Iban</label></li>
+                        <li class="option-item"><label><input type="radio" name="q1" value="B"> B. Bidayuh</label></li>
+                        <li class="option-item"><label><input type="radio" name="q1" value="C"> C. Melanau</label></li>
+                        <li class="option-item"><label><input type="radio" name="q1" value="D"> D. Orang Ulu</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q1"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">2. Apakah nama semangat dalam kepercayaan tradisi kaum Melanau yang dikaitkan dengan kawasan hutan?</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q2" value="A"> A. Ipok Laut</label></li>
+                        <li class="option-item"><label><input type="radio" name="q2" value="B"> B. Ipok Balau</label></li>
+                        <li class="option-item"><label><input type="radio" name="q2" value="C"> C. Ipok Sarauang</label></li>
+                        <li class="option-item"><label><input type="radio" name="q2" value="D"> D. Ipok Iyang</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q2"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">3. Upacara "Bebayuh" dalam tradisi kuno kaum Melanau merupakan suatu ritual untuk...</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q3" value="A"> A. Merayakan tamat musim menuai padi</label></li>
+                        <li class="option-item"><label><input type="radio" name="q3" value="B"> B. Menyembuhkan penyakit akibat gangguan mistik</label></li>
+                        <li class="option-item"><label><input type="radio" name="q3" value="C"> C. Menyambut perlantikan ketua kampung baharu</label></li>
+                        <li class="option-item"><label><input type="radio" name="q3" value="D"> D. Memulakan pembinaan rumah panjang</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q3"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">4. Apakah tindakan yang dilakukan oleh bomoh Melanau pada malam Hari Pertama upacara Bebayuh?</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q4" value="A"> A. Berinteraksi dengan semangat ghaib secara bersendirian</label></li>
+                        <li class="option-item"><label><input type="radio" name="q4" value="B"> B. Memanggil semua penduduk ke rumah panjang</label></li>
+                        <li class="option-item"><label><input type="radio" name="q4" value="C"> C. Menyediakan talam sajian kuih tumpi</label></li>
+                        <li class="option-item"><label><input type="radio" name="q4" value="D"> D. Menyembelih seekor ayam jantan hidup</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q4"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">5. Pada Hari Ketiga upacara Bebayuh, apakah nama anyaman daun palas kering yang diserahkan sebagai bahan ritual?</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q5" value="A"> A. Isem pisai</label></li>
+                        <li class="option-item"><label><input type="radio" name="q5" value="B"> B. Pua kumbu</label></li>
+                        <li class="option-item"><label><input type="radio" name="q5" value="C"> C. Topong</label></li>
+                        <li class="option-item"><label><input type="radio" name="q5" value="D"> D. Keringkam</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q5"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">6. Antara berikut, manakah kombinasi alat muzik yang dimainkan semasa kemuncak pengesanan penyakit dalam ritual Bebayuh?</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q6" value="A"> A. Sape, engkerumong, dan gendang panjang</label></li>
+                        <li class="option-item"><label><input type="radio" name="q6" value="B"> B. Kompang, rebana, dan serunai pesisir</label></li>
+                        <li class="option-item"><label><input type="radio" name="q6" value="C"> C. Gong besar, canang, dan seruling bambu</label></li>
+                        <li class="option-item"><label><input type="radio" name="q6" value="D"> D. Gendang genayang, tadak, kulintangan, dan tetawak</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q6"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">7. Semasa upacara Bebayuh hari ketiga, apakah tindakan luar biasa yang dilakukan oleh bomoh sebaik sahaja proses mengesan penyakit pesakit selesai?</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q7" value="A"> A. Mengunyah mayang pinang kering</label></li>
+                        <li class="option-item"><label><input type="radio" name="q7" value="B"> B. Memijak serpihan kaca tanpa alas kaki</label></li>
+                        <li class="option-item"><label><input type="radio" name="q7" value="C"> C. Menyiram air dupa ke atas badan sendiri</label></li>
+                        <li class="option-item"><label><input type="radio" name="q7" value="D"> D. Menelan lilin yang sedang menyala</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q7"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">8. Berapakah bilangan penari yang diperlukan untuk mempersembahkan Tarian Seladai pada malam hari ketiga upacara Bebayuh?</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q8" value="A"> A. 5 lelaki dan 5 perempuan belum berkahwin</label></li>
+                        <li class="option-item"><label><input type="radio" name="q8" value="B"> B. 7 lelaki dan 7 perempuan belum berkahwin</label></li>
+                        <li class="option-item"><label><input type="radio" name="q8" value="C"> C. 9 lelaki dan 9 perempuan bertunang</label></li>
+                        <li class="option-item"><label><input type="radio" name="q8" value="D"> D. 12 lelaki dan 12 perempuan berkahwin</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q8"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">9. Antara berikut, manakah pantang larang makanan yang WAJIB dipatuhi oleh pesakit dari hari keempat hingga keenam upacara Bebayuh?</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q9" value="A"> A. Dilarang memakan ubi kayu dan sayur hutan</label></li>
+                        <li class="option-item"><label><input type="radio" name="q9" value="B"> B. Dilarang memakan ikan pari, ikan yu, kacang, dan telur</label></li>
+                        <li class="option-item"><label><input type="radio" name="q9" value="C"> C. Dilarang memakan buah-buahan liar dan madu lebah</label></li>
+                        <li class="option-item"><label><input type="radio" name="q9" value="D"> D. Dilarang meminum air sungai dan memakan daging buruan</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q9"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">10. Apakah jenis pengeras khas yang wajib disediakan oleh pesakit pada malam ketujuh (upacara pemutus ubat) dalam adat Bebayuh?</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q10" value="A"> A. Tempayan kuno, sebilah parang, dan sepasang pua kumbu</label></li>
+                        <li class="option-item"><label><input type="radio" name="q10" value="B"> B. Butiran emas, lembing kecil daripada tulang, dan seekor ayam hidup</label></li>
+                        <li class="option-item"><label><input type="radio" name="q10" value="C"> C. Tikar mengkuang, sapu tangan sutera, dan semangkuk beras</label></li>
+                        <li class="option-item"><label><input type="radio" name="q10" value="D"> D. Sebilah keris warisan, mas kahwin tunai, dan seutas rantai perak</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q10"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">11. Dalam adat resam perkahwinan masyarakat Melayu di Sarawak, istilah "merasi" merujuk kepada fasa...</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q11" value="A"> A. Membatalkan air sembahyang di atas pelamin</label></li>
+                        <li class="option-item"><label><input type="radio" name="q11" value="B"> B. Menghantar tikar jemputan ke rumah lelaki</label></li>
+                        <li class="option-item"><label><input type="radio" name="q11" value="C"> C. Usaha pencarian dan penentuan keserasian jodoh oleh pihak lelaki</label></li>
+                        <li class="option-item"><label><input type="radio" name="q11" value="D"> D. Upacara mandi membersihkan diri oleh Mak Andam</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q11"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">12. Siapakah yang biasanya memegang peranan penting sebagai perantara masyarakat untuk menjalankan tugas mencari jodoh dalam adat "merasi"?</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q12" value="A"> A. Dukun kampung atau bomoh resam</label></li>
+                        <li class="option-item"><label><input type="radio" name="q12" value="B"> B. Ketua kampung, imam, guru agama, atau guru sekolah</label></li>
+                        <li class="option-item"><label><input type="radio" name="q12" value="C"> C. Saudara mara terdekat yang belum berkahwin</label></li>
+                        <li class="option-item"><label><input type="radio" name="q12" value="D"> D. Kumpulan hadrah dan pemain kompang</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q12"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">13. Istilah pertanyaan dan pengesahan status gadis secara rasmi yang dipanggil "kerisik kerimun" dilakukan dalam fasa mana?</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q13" value="A"> A. Merasi</label></li>
+                        <li class="option-item"><label><input type="radio" name="q13" value="B"> B. Ngangin</label></li>
+                        <li class="option-item"><label><input type="radio" name="q13" value="C"> C. Bertekul</label></li>
+                        <li class="option-item"><label><input type="radio" name="q13" value="D"> D. Berjembak</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q13"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">14. Apakah maksud adat "Bertekul" dalam fasa pra-perkahwinan masyarakat Melayu Sarawak?</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q14" value="A"> A. Adat menghias pelamin dengan bunga melur</label></li>
+                        <li class="option-item"><label><input type="radio" name="q14" value="B"> B. Adat merisik dan meminang sebagai tanda komitmen pertunangan</label></li>
+                        <li class="option-item"><label><input type="radio" name="q14" value="C"> C. Adat berjalan turun naik tangga sebanyak 7 kali</label></li>
+                        <li class="option-item"><label><input type="radio" name="q14" value="D"> D. Adat membawa pengantin perempuan ke rumah mentua</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q14"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">15. Jika pengantin perempuan mempunyai kakak yang belum berkahwin, pihak lelaki dikenakan adat "langkah batang" berupa...</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q15" value="A"> A. Cincin emas atau sepersalinan pakaian kepada si kakak</label></li>
+                        <li class="option-item"><label><input type="radio" name="q15" value="B"> B. Wang denda tunai sebanyak RM200 kepada keluarga</label></li>
+                        <li class="option-item"><label><input type="radio" name="q15" value="C"> C. Seekor ayam hidup dan sebilah parang warisan</label></li>
+                        <li class="option-item"><label><input type="radio" name="q15" value="D"> D. Seutas rantai perak dan sebiji tempayan kecil</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q15"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">16. Apakah takrifan bagi perkahwinan jenis "Nikah Nyerah Diri" dalam adat Melayu Sarawak?</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q16" value="A"> A. Pihak lelaki menyerah diri kepada keluarga perempuan kaya akibat kekurangan kewangan</label></li>
+                        <li class="option-item"><label><input type="radio" name="q16" value="B"> B. Pasangan yang ditangkap berkhalwat dipaksa berkahwin secara ringkas</label></li>
+                        <li class="option-item"><label><input type="radio" name="q16" value="C"> C. Perkahwinan yang dijalankan mengikut hukum syarak dan adat sepenuhnya</label></li>
+                        <li class="option-item"><label><input type="radio" name="q16" value="D"> D. Lelaki mengikut perempuan menetap di rumah panjang mentua</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q16"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">17. Perkahwinan tradisi Sarawak yang digelar "Ngekot" berlaku disebabkan oleh faktor utama apa?</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q17" value="A"> A. Keluarga perempuan tidak merestui hubungan pasangan tersebut</label></li>
+                        <li class="option-item"><label><input type="radio" name="q17" value="B"> B. Kedua-dua pengantin berasal dari kampung yang bermusuh</label></li>
+                        <li class="option-item"><label><input type="radio" name="q17" value="C"> C. Masalah mas kahwin yang terlalu tinggi ditetapkan oleh imam</label></li>
+                        <li class="option-item"><label><input type="radio" name="q17" value="D"> D. Pengantin lelaki melarikan diri pada hari pernikahan</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q17"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">18. Upacara mandi pembersihan yang diakhiri dengan mengambil wuduk oleh Mak Andam pada malam berlulut dinamakan...</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q18" value="A"> A. Mandi Bepukung</label></li>
+                        <li class="option-item"><label><input type="radio" name="q18" value="B"> B. Mandi Perantan</label></li>
+                        <li class="option-item"><label><input type="radio" name="q18" value="C"> C. Mandi Kesucian</label></li>
+                        <li class="option-item"><label><input type="radio" name="q18" value="D"> D. Mandi Berjembak</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q18"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">19. Mengapakah pengantin perempuan Melayu Sarawak dilarang keras melihat cermin sepanjang proses mengandam?</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q19" value="A"> A. Dikhuatiri akan diganggu oleh makhluk halus ghaib</label></li>
+                        <li class="option-item"><label><input type="radio" name="q19" value="B"> B. Dipercayai boleh menghilangkan seri wajah semasa bersanding di pelamin</label></li>
+                        <li class="option-item"><label><input type="radio" name="q19" value="C"> C. Takut wajah pengantin menjadi tidak simetri selepas diandam</label></li>
+                        <li class="option-item"><label><input type="radio" name="q19" value="D"> D. Mengelakkan Mak Andam tersalah meletakkan bedak tradisional</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q19"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">20. Apakah nama busana persandingan tradisional yang menjadi identiti unik kebanggaan kaum Melayu di Sarawak?</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q20" value="A"> A. Pua Kumbu Bertekat</label></li>
+                        <li class="option-item"><label><input type="radio" name="q20" value="B"> B. Gajah Oleng</label></li>
+                        <li class="option-item"><label><input type="radio" name="q20" value="C"> C. Selayah Keringkam</label></li>
+                        <li class="option-item"><label><input type="radio" name="q20" value="D"> D. Baju Kurung Teluk Belanga Sarawak</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q20"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">21. Tikar Ngambik Pengantin dibalut dengan fabrik eksklusif Sarawak bersulam benang emas yang dikenali sebagai...</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q21" value="A"> A. Kain songket pua</label></li>
+                        <li class="option-item"><label><input type="radio" name="q21" value="B"> B. Sutera tekat cina</label></li>
+                        <li class="option-item"><label><input type="radio" name="q21" value="C"> C. Tudung keringkam / selayah</label></li>
+                        <li class="option-item"><label><input type="radio" name="q21" value="D"> D. Kain belacu emas</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q21"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">22. Apakah jenis persembahan seni silat yang ditarikan setibanya pengantin lelaki sebagai acara "pembuka pintu"?</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q22" value="A"> A. Pencak Silat Cekak</label></li>
+                        <li class="option-item"><label><input type="radio" name="q22" value="B"> B. Pencak Silat Kapak</label></li>
+                        <li class="option-item"><label><input type="radio" name="q22" value="C"> C. Pencak Silat Gayong</label></li>
+                        <li class="option-item"><label><input type="radio" name="q22" value="D"> D. Pencak Silat Langkah Tujuh</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q22"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">23. "Upacara Berjembak" yang memerlukan pengantin lelaki menyentuh dahi isteri dengan ibu jari bersama jejambak membawa simbolik...</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q23" value="A"> A. Adat memulakan tarian andai-andai</label></li>
+                        <li class="option-item"><label><input type="radio" name="q23" value="B"> B. Adat membatalkan air sembahyang antara kedua-dua pengantin</label></li>
+                        <li class="option-item"><label><input type="radio" name="q23" value="C"> C. Adat memohon keizinan untuk turun naik tangga rumah</label></li>
+                        <li class="option-item"><label><input type="radio" name="q23" value="D"> D. Adat menolak malapetaka dan penyakit daripada keluarga</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q23"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">24. Dalam adat "mengundang menantu" selepas 7 hari perkahwinan, apakah hadiah manifestasi kegembiraan yang diberikan oleh ibu mentua?</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q24" value="A"> A. Pua kumbu halus dan sebilah duku</label></li>
+                        <li class="option-item"><label><input type="radio" name="q24" value="B"> B. Selayah keringkam bersulam benang emas</label></li>
+                        <li class="option-item"><label><input type="radio" name="q24" value="C"> C. Lapit kaki (alas kaki) atau barangan kemas/berlian</label></li>
+                        <li class="option-item"><label><input type="radio" name="q24" value="D"> D. Kain songket bertunang dan kotak tekul</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q24"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">25. Tradisi meratap dan menangis oleh ahli keluarga selama 10 hingga 30 minit sebaik berlakunya kematian dalam masyarakat Iban dinamakan...</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q25" value="A"> A. Mati Enggau Rabat</label></li>
+                        <li class="option-item"><label><input type="radio" name="q25" value="B"> B. Ngetas Ulit</label></li>
+                        <li class="option-item"><label><input type="radio" name="q25" value="C"> C. Berserara Bungai</label></li>
+                        <li class="option-item"><label><input type="radio" name="q25" value="D"> D. Sabak Sebayan</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q25"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">26. Dalam adat kematian kaum Iban, mengapakah dua batang alu dipasang melintang sebagai galang di ruang "tempuan"?</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q26" value="A"> A. Untuk menandakan sempadan kawasan Tukang Sabak menyanyi</label></li>
+                        <li class="option-item"><label><input type="radio" name="q26" value="B"> B. Menghalang roh si mati masuk semula ke rumah panjang dan menambah kematian</label></li>
+                        <li class="option-item"><label><input type="radio" name="q26" value="C"> C. Sebagai simbolik tempat menyimpan harta baiya mendiang</label></li>
+                        <li class="option-item"><label><input type="radio" name="q26" value="D"> D. Persediaan untuk menumbuk padi bagi hidangan tetamu rumah panjang</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q26"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">27. Apakah bahan semula jadi yang ditumbuk untuk dijadikan air sabun pembersih jenazah dalam adat kematian masyarakat Iban?</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q27" value="A"> A. Kulit buah langgir</label></li>
+                        <li class="option-item"><label><input type="radio" name="q27" value="B"> B. Daun palas kering</label></li>
+                        <li class="option-item"><label><input type="radio" name="q27" value="C"> C. Bunga melur liar</label></li>
+                        <li class="option-item"><label><input type="radio" name="q27" value="D"> D. Akar kayu mentel</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q27"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">28. Kain pua kumbu digantung menegak setinggi 5 kaki di ruang ruai membentuk dinding penghadang zon mayat berukuran 9 kaki persegi yang dinamakan...</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q28" value="A"> A. Baiya</label></li>
+                        <li class="option-item"><label><input type="radio" name="q28" value="B"> B. Sapat</label></li>
+                        <li class="option-item"><label><input type="radio" name="q28" value="C"> C. Tempuan</label></li>
+                        <li class="option-item"><label><input type="radio" name="q28" value="D"> D. Sebayan</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q28"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">29. Apakah yang dimaksudkan dengan istilah "Baiya" dalam konteks tatacara kematian masyarakat Iban?</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q29" value="A"> A. Dinding pua kumbu setinggi 5 kaki</label></li>
+                        <li class="option-item"><label><input type="radio" name="q29" value="B"> B. Barang hantaran milik si mati dimasukkan dalam kotak kosong berdekatan kepala</label></li>
+                        <li class="option-item"><label><input type="radio" name="q29" value="C"> C. Denda wang tunai akibat melanggar tempoh berkabung</label></li>
+                        <li class="option-item"><label><input type="radio" name="q29" value="D"> D. Tiga tanda kunyit yang diletakkan pada dahi jenazah</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q29"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">30. Siapakah yang bertanggungjawab mendendangkan nyanyian ratapan dari senja hingga subuh menceritakan perjalanan roh Iban ke akhirat?</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q30" value="A"> A. Tuai Burung</label></li>
+                        <li class="option-item"><label><input type="radio" name="q30" value="B"> B. Manang</label></li>
+                        <li class="option-item"><label><input type="radio" name="q30" value="C"> C. Tukang Sabak</label></li>
+                        <li class="option-item"><label><input type="radio" name="q30" value="D"> D. Mak Andam</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q30"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">31. Apakah nama denda pemampul (bernilai RM2.00) jika penduduk menganjurkan keraian dalam tempoh 3 bulan berkabung Iban?</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q31" value="A"> A. Sigi panding</label></li>
+                        <li class="option-item"><label><input type="radio" name="q31" value="B"> B. Baiya pandang</label></li>
+                        <li class="option-item"><label><input type="radio" name="q31" value="C"> C. Usin keraian</label></li>
+                        <li class="option-item"><label><input type="radio" name="q31" value="D"> D. Ngetas ulit</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q31"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">32. Potong rotan pengikat lengguai dan memotong sedikit rambut keluarga merupakan intipati acara tamat berkabung Iban yang digelar...</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q32" value="A"> A. Adat Miring</label></li>
+                        <li class="option-item"><label><input type="radio" name="q32" value="B"> B. Berserara Bungai</label></li>
+                        <li class="option-item"><label><input type="radio" name="q32" value="C"> C. Sabak Sebayan</label></li>
+                        <li class="option-item"><label><input type="radio" name="q32" value="D"> D. Upacara Ngetas Ulit</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q32"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">33. Manang mengendalikan "Upacara Berserara Bungai" selepas 1-2 bulan ngetas ulit dengan tujuan untuk...</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q33" value="A"> A. Mengumpul harta pusaka peninggalan nenek moyang</label></li>
+                        <li class="option-item"><label><input type="radio" name="q33" value="B"> B. Memisahkan secara total roh si mati dengan keluarga yang hidup</label></li>
+                        <li class="option-item"><label><input type="radio" name="q33" value="C"> C. Memohon keizinan membina petak bumbung rumah panjang</label></li>
+                        <li class="option-item"><label><input type="radio" name="q33" value="D"> D. Melantik Tuai Rumah panjang yang baharu</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q33"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">34. Suku Kelabit (Orang Ulu) mengamalkan Adat Makan Tahun kesyukuran padi. Apakah gelaran bagi wang sumbangan yang dikutip ketua kampung?</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q34" value="A"> A. Tekul</label></li>
+                        <li class="option-item"><label><input type="radio" name="q34" value="B"> B. Lapit</label></li>
+                        <li class="option-item"><label><input type="radio" name="q34" value="C"> C. Usin</label></li>
+                        <li class="option-item"><label><input type="radio" name="q34" value="D"> D. Poe'</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q34"></div>
+                </div>
+
+                <div class="question-block">
+                    <div class="question-text">35. Kaum Bidayuh Salako menjalankan upacara "Ngoncong" dengan menari mengelilingi talam untuk memohon doa kesejahteraan kepada...</div>
+                    <ul class="options-list">
+                        <li class="option-item"><label><input type="radio" name="q35" value="A"> A. Ipok</label></li>
+                        <li class="option-item"><label><input type="radio" name="q35" value="B"> B. Jubata</label></li>
+                        <li class="option-item"><label><input type="radio" name="q35" value="C"> C. Petara</label></li>
+                        <li class="option-item"><label><input type="radio" name="q35" value="D"> D. Sebayan</label></li>
+                    </ul>
+                    <div class="feedback-box" id="feedback-q35"></div>
+                </div>
+
+                <div class="submit-container">
+                    <button type="button" class="check-btn" onclick="semakJawapan()">Klik untuk Semak Jawapan</button>
+                </div>
+
+                <div class="result-container" id="resultBox"></div>
+
+            </form>
+        </div>
+
+    </div>
+
+    <script>
+        // Skema Jawapan Tepat (35 Soalan)
+        const skemaJawapan = {
+            q1: 'C', q2: 'B', q3: 'B', q4: 'A', q5: 'A',
+            q6: 'D', q7: 'D', q8: 'B', q9: 'B', q10: 'B',
+            q11: 'C', q12: 'B', q13: 'B', q14: 'B', q15: 'A',
+            q16: 'A', q17: 'A', q18: 'B', q19: 'B', q20: 'B',
+            q21: 'C', q22: 'B', q23: 'B', q24: 'C', q25: 'A',
+            q26: 'B', q27: 'A', q28: 'B', q29: 'B', q30: 'C',
+            q31: 'A', q32: 'D', q33: 'B', q34: 'C', q35: 'B'
+        };
+
+        function semakJawapan() {
+            let jumlahTepat = 0;
+            const jumlahSoalan = 35;
+
+            for (let i = 1; i <= jumlahSoalan; i++) {
+                const soalanId = 'q' + i;
+                const pilihan = document.querySelector(`input[name="${soalanId}"]:checked`);
+                const feedbackElemen = document.getElementById(`feedback-q${i}`);
+                
+                // Reset styling box maklum balas
+                feedbackElemen.className = 'feedback-box';
+
+                if (pilihan) {
+                    if (pilihan.value === skemaJawapan[soalanId]) {
+                        jumlahTepat++;
+                        feedbackElemen.innerHTML = "✅ Tepat! Jawapan anda betul.";
+                        feedbackElemen.classList.add('correct');
+                    } else {
+                        feedbackElemen.innerHTML = `❌ Salah. Jawapan tepat ialah: ${skemaJawapan[soalanId]}`;
+                        feedbackElemen.classList.add('wrong');
+                    }
+                } else {
+                    feedbackElemen.innerHTML = `⚠️ Tiada jawapan dipilih. Jawapan tepat ialah: ${skemaJawapan[soalanId]}`;
+                    feedbackElemen.classList.add('wrong');
+                }
+            }
+
+            // Papar jumlah soalan tepat yang dijawab setelah butang ditekan
+            const resultBox = document.getElementById('resultBox');
+            resultBox.innerHTML = `📊 Keputusan: Anda menjawab ${jumlahTepat} daripada ${jumlahSoalan} soalan dengan tepat!`;
+            resultBox.classList.add('show');
+            
+            // Scroll automatik ke kotak keputusan harian murid
+            resultBox.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
